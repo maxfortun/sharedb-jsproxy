@@ -1,0 +1,20 @@
+{
+  "name": "sharedb-jsproxy",
+  "version": "0.0.1",
+  "description": "ShareDB JS Proxy",
+  "config": {
+    "main": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxfortun/sharedb-jsproxy.git"
+  },
+  "author": "Max Fortun <Max.Fortun@wsj.com>",
+  "scripts": {
+    "lint": "eslint $npm_package_config_main",
+    "test": "DEBUG=* jest"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
+}
