@@ -1,15 +1,15 @@
 'use strict';
 
 const Debug			= require('debug');
-const debug			= new Debug('sharedb-jsproxy:test:string:local');
+const debug			= new Debug('sharedb-jsproxy:test:string:remote');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
 const expect	= require('chai').expect;
 
 const logger = {
-  info: sharedbDebug,
-  warn: sharedbDebug,
-  error: sharedbDebug
+	info: sharedbDebug,
+	warn: sharedbDebug,
+	error: sharedbDebug
 };
 
 const ShareDB	= require('sharedb');
@@ -21,47 +21,97 @@ const ShareDBPromises	= require('../util/sharedb-promises.js');
 const ShareDBJSProxy	= require('../index.js');
 
 describe('string local', function() {
+
 	beforeEach(async function() {
 		this.backend = new Backend();
 		this.connection = this.backend.connect();
 		this.connection.debug = sharedbDebug.enabled;
 
-		this.doc = this.connection.get('dogs', 'fido');
-		await ShareDBPromises.create(this.doc, {name: 'fido'});
-		this.docProxy = new ShareDBJSProxy(this.doc);
+		const doc = this.doc = this.connection.get('dogs', 'fido');
+		await ShareDBPromises.subscribe(doc);
+		await ShareDBPromises.create(doc, {name: 'fido'});
+
+		this.docProxy = new ShareDBJSProxy(doc);
 	});
 
 	it('new', async function () {
-		this.docProxy.color = 'white';
-		await this.docProxy.color;
-		expect(this.doc.data.color).equal('white');
+		return new Promise(async (resolve, reject) => {
+			const docProxy = this.docProxy;
+
+			docProxy.__proxy__.on('change', event => {
+				debug("event", event);
+				expect(event.prop).equal('color');
+				expect(event.data).equal('white');
+				resolve();
+			});
+
+			docProxy.color = 'white';
+			await docProxy.color;
+		});
 	});
 
 	it('change', async function () {
-		this.docProxy = new ShareDBJSProxy(this.doc);
-		this.docProxy.name = 'snoopy';
-		await this.docProxy.name;
-		expect(this.doc.data.name).equal('snoopy');
+		return new Promise(async (resolve, reject) => {
+			const docProxy = this.docProxy;
+
+			docProxy.__proxy__.on('change', event => {
+				debug("event", event);
+				expect(event.prop).equal('name');
+				expect(event.data).equal('snoopy');
+				resolve();
+			});
+
+			docProxy.name = 'snoopy';
+			await docProxy.name;
+		});
 	});
 
 	it('unchanged', async function () {
-		this.docProxy = new ShareDBJSProxy(this.doc);
-		this.docProxy.name = 'fido';
-		await this.docProxy.name;
-		expect(this.doc.data.name).equal('fido');
+		return new Promise(async (resolve, reject) => {
+			const docProxy = this.docProxy;
+
+			docProxy.__proxy__.on('unchanged', event => {
+				debug("event", event);
+				expect(event.prop).equal('name');
+				expect(event.data).equal('fido');
+				resolve();
+			});
+
+			docProxy.name = 'fido';
+			await docProxy.name;
+		});
 	});
 
 	it('null', async function () {
-		this.docProxy = new ShareDBJSProxy(this.doc);
-		this.docProxy.name = null;
-		await this.docProxy.name;
-		expect(this.doc.data.name).equal(null);
+		return new Promise(async (resolve, reject) => {
+			const docProxy = this.docProxy;
+
+			docProxy.__proxy__.on('change', event => {
+				debug("event", event);
+				expect(event.prop).equal('name');
+				expect(event.data).equal(null);
+				resolve();
+			});
+
+			docProxy.name = null;
+			await docProxy.name;
+		});
 	});
 
 	it('delete', async function () {
-		this.docProxy = new ShareDBJSProxy(this.doc);
-		delete this.docProxy.name;
-		await this.docProxy.name;
-		expect(this.doc.data.name).equal(undefined);
+		return new Promise(async (resolve, reject) => {
+			const docProxy = this.docProxy;
+
+			docProxy.__proxy__.on('change', event => {
+				debug("event", event);
+				expect(event.prop).equal('name');
+				expect(event.data).equal(undefined);
+				resolve();
+			});
+
+			delete docProxy.name;
+			await docProxy.name;
+		});
 	});
+
 });

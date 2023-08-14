@@ -163,18 +163,20 @@ class ShareDBJSProxy extends EventEmitter {
 
 	set(target, prop, data) {
 		if(target[prop] === data) {
-			this.debug("Proxy.set same", this.path, prop, data);
+			this.debug("Proxy.set unchanged", this.path, prop, data);
+			const event = { prop, data };
+			this.debug("emit", event);
+			this.emit("unchanged", event);
 			return true;
 		}
+
 		this.debug("Proxy.set", this.path, prop, data);
 		let setter = this["toShareDB_"+this.dataType];
 		if(!setter) {
 			throw new Error("Could not find setter for type "+this.dataType);
 		}
 
-		const result = setter.apply(this, [ target, prop, data ]);
-		this.emit("change", { target, prop, data });
-		return result;
+		return setter.apply(this, [ target, prop, data ]);
 	}
 
 	inferType(data) {
@@ -233,8 +235,6 @@ class ShareDBJSProxy extends EventEmitter {
 	}
 
 	async fromShareDBOp(op, source) {
-		this.debug("fromShareDBOp", this.path, op, source);
-
 		let pathOffset = 1;
 		if(op.si || op.sd) {
 			pathOffset = 2;
@@ -242,31 +242,22 @@ class ShareDBJSProxy extends EventEmitter {
 
 		for(let i = 0; i < op.p.length - pathOffset && i < this.path.length; i++) {
 			if(op.path[i] != this.path[i]) {
-				this.debug("fromShareDBOp exit 1", this.path, op, source);
+				this.debug("fromShareDBOp error: path not found", this.path, op, source);
 				return;
 			}
 		}
 
 		if(op.p.length - pathOffset < this.path.length) {
-			this.debug("fromShareDBOp exit 2", this.path, op, source);
+			this.debug("fromShareDBOp error: path too short", this.path, op, source);
 			return;
 		}
 
-		const target = this;
 		const prop = op.p[op.p.length - pathOffset];
 		const data = this.doc.data[prop];
 
-		if(target[prop] == data) {
-			this.debug("fromShareDBOp exit 3", this.path, op, source, target, prop, data);
-			return;
-		}
-
-		this.debug("fromShareDBOp", this.path, op, source);
-
-		target[prop] = data;
-
-		this.emit("change", { target, prop, data });
-		
+		const event = { prop, data, source };
+		this.debug("fromShareDBOp", event);
+		this.emit("change", event);
 	}
 }
 

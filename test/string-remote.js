@@ -79,7 +79,7 @@ describe('string remote', function() {
 			const localProxy = this.docProxies[0];
 			const remoteProxy = this.docProxies[1];
 
-			remoteProxy.__proxy__.on('change', event => {
+			remoteProxy.__proxy__.on('unchanged', event => {
 				debug("event", event);
 				expect(event.prop).equal('name');
 				expect(event.data).equal('fido');
