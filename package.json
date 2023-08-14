@@ -12,7 +12,7 @@
   "author": "Max Fortun <max@maxf.net>",
   "scripts": {
     "lint": "eslint $npm_package_config_main",
-    "test": "DEBUG=* mocha"
+    "test": "DEBUG=sharedb-jsproxy* mocha"
   },
   "devDependencies": {
     "chai": "^4.3.7",
