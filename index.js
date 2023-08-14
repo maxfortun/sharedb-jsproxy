@@ -23,8 +23,6 @@ class ShareDBJSProxy extends EventEmitter {
 		this.path = path || [];
 		this.parentShareDBJSProxy = parentShareDBJSProxy;
 
-		// this.debug("constructor in", this.path);
-
 		let data = this.data();
 		if(!data) {
 			throw new Error("Could not find path", this.path, "in", this.doc.data);
@@ -197,9 +195,13 @@ class ShareDBJSProxy extends EventEmitter {
 
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_object(target, prop, data, proxy) {
+		if(typeof target[prop] === 'string') {
+			return this.toShareDB_string(target, prop, data, proxy);
+		}
+
 		let p = this.path.slice();
 		p.push(prop);
-
+		
 		let op = {
 			p,
 			oi: data
@@ -209,7 +211,7 @@ class ShareDBJSProxy extends EventEmitter {
 	}
 
 	toShareDBOp(target, prop, data, op) {
-		this.debug("Proxy.set toShareDBOp", this.path, prop, data, op);
+		this.debug('Proxy.set toShareDBOp', this.path, prop, data, op);
 		let promiseInfo = this.promises[prop] = { prop, data };
 		let self = this;
 		promiseInfo.promise = ShareDBPromises.submitOp(this.doc, [ op ])
