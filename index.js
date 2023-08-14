@@ -157,7 +157,7 @@ class ShareDBJSProxy extends EventEmitter {
 	set(target, prop, data) {
 		if(target[prop] === data) {
 			debug("Proxy.set same", this.path, prop, data);
-			return;
+			return true;
 		}
 		debug("Proxy.set", this.path, prop, data);
 		let setter = this["toShareDb_"+this.dataType];

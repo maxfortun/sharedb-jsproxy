@@ -35,12 +35,41 @@ describe('ShareDB JS Proxy', function() {
 		const docProxy = new ShareDBJSProxy(this.doc);
 	});
 
-	it('should update top level string field', async function () {
-		const docProxy = new ShareDBJSProxy(this.doc);
-		docProxy.name = 'fido';
-		await docProxy.name;
-		debug(this.doc);
-		expect(this.doc.data.name).equal('fido');
+	describe('string', function() {
+		it('new', async function () {
+			const docProxy = new ShareDBJSProxy(this.doc);
+			docProxy.color = 'white';
+			await docProxy.color;
+			expect(this.doc.data.color).equal('white');
+		});
+
+		it('change', async function () {
+			const docProxy = new ShareDBJSProxy(this.doc);
+			docProxy.name = 'snoopy';
+			await docProxy.name;
+			expect(this.doc.data.name).equal('snoopy');
+		});
+
+		it('unchanged', async function () {
+			const docProxy = new ShareDBJSProxy(this.doc);
+			docProxy.name = 'fido';
+			await docProxy.name;
+			expect(this.doc.data.name).equal('fido');
+		});
+
+		it('null', async function () {
+			const docProxy = new ShareDBJSProxy(this.doc);
+			docProxy.name = null;
+			await docProxy.name;
+			expect(this.doc.data.name).equal(null);
+		});
+
+		it('delete', async function () {
+			const docProxy = new ShareDBJSProxy(this.doc);
+			delete docProxy.name;
+			await docProxy.name;
+			expect(this.doc.data.name).equal(undefined);
+		});
 	});
 
 	it('should create 2 proxies to the same document', function () {
