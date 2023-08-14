@@ -1,6 +1,6 @@
 # sharedb-jsproxy
 
-Javascript Proxy to ShareDb document.  
+[Javascript Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) to [ShareDb](https://github.com/share/sharedb) document.  
 
 Setting a value on this proxy will update the document on the backend. 
  
