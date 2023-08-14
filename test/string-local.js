@@ -1,7 +1,7 @@
 'use strict';
 
 const Debug			= require('debug');
-const debug			= new Debug('sharedb-jsproxy:test');
+const debug			= new Debug('sharedb-jsproxy:test:string:local');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
 const expect	= require('chai').expect;
