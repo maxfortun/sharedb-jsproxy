@@ -3,21 +3,21 @@
 const Debug				= require('debug');
 const EventEmitter		= require('events');
 
-class ShareDbJSProxy extends EventEmitter {
+class ShareDBJSProxy extends EventEmitter {
 
 	constructor(doc, options) {
 		if(!options) {
 			options = {};
 		}
-		const { path, parentShareDbJSProxy } = options;
+		const { path, parentShareDBJSProxy } = options;
 
 		super();
 
-		this.debug = new Debug("ShareDbJSProxy:debug");
+		this.debug = new Debug("ShareDBJSProxy:debug");
 
 		this.doc = doc;
 		this.path = path || [];
-		this.parentShareDbJSProxy = parentShareDbJSProxy;
+		this.parentShareDBJSProxy = parentShareDBJSProxy;
 
 		// this.debug("constructor in", this.path);
 
@@ -67,7 +67,7 @@ class ShareDbJSProxy extends EventEmitter {
 		childPath.push(prop);
 		this.debug("setChildProxy", childPath, data, this.doc.data);
 		try {
-			this.childProxies[prop] = new ShareDbJSProxy(this.doc, { path: childPath, parentShareDbJSProxy: this });
+			this.childProxies[prop] = new ShareDBJSProxy(this.doc, { path: childPath, parentShareDBJSProxy: this });
 		} catch(e) {
 			this.debug("Failed to create a child proxy for", childPath, dataType, data, this.doc.data, e);
 			throw e;
@@ -129,6 +129,7 @@ class ShareDbJSProxy extends EventEmitter {
 		return this.dataAt(this.doc.data, path || this.path);
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	get(target, prop, receiver) {
 		this.debug("Proxy.get", this.path, prop);
 		if(prop === "__proxy__") {
@@ -187,6 +188,7 @@ class ShareDbJSProxy extends EventEmitter {
 		return type;
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	toShareDb_object(target, prop, data, proxy) {
 		let p = this.path.slice();
 		p.push(prop);
@@ -221,10 +223,12 @@ class ShareDbJSProxy extends EventEmitter {
 		return promiseInfo.promise;
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	toShareDb_array(target, prop, data, proxy) {
 		this.debug("toShareDb_array", this.path, prop, data);
 	}
-
+	
+	// eslint-disable-next-line no-unused-vars
 	toShareDb_string(target, prop, data, proxy) {
 		this.debug("toShareDb_string", this.path, prop, data);
 	}
@@ -272,6 +276,6 @@ class ShareDbJSProxy extends EventEmitter {
 	}
 }
 
-module.exports = ShareDbJSProxy;
+module.exports = ShareDBJSProxy;
 
 
