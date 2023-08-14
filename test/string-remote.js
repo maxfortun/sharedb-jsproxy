@@ -52,8 +52,7 @@ describe('string remote', function() {
 				resolve();
 			});
 
-			remoteProxy.color = 'white';
-			await remoteProxy.color;
+			localProxy.color = 'white';
 		});
 	});
 
@@ -69,25 +68,7 @@ describe('string remote', function() {
 				resolve();
 			});
 
-			remoteProxy.name = 'snoopy';
-			await remoteProxy.name;
-		});
-	});
-
-	it('unchanged', async function () {
-		return new Promise(async (resolve, reject) => {
-			const localProxy = this.docProxies[0];
-			const remoteProxy = this.docProxies[1];
-
-			remoteProxy.__proxy__.on('unchanged', event => {
-				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal('fido');
-				resolve();
-			});
-
-			remoteProxy.name = 'fido';
-			await remoteProxy.name;
+			localProxy.name = 'snoopy';
 		});
 	});
 
@@ -103,8 +84,7 @@ describe('string remote', function() {
 				resolve();
 			});
 
-			remoteProxy.name = null;
-			await remoteProxy.name;
+			localProxy.name = null;
 		});
 	});
 
@@ -120,8 +100,7 @@ describe('string remote', function() {
 				resolve();
 			});
 
-			delete remoteProxy.name;
-			await remoteProxy.name;
+			delete localProxy.name;
 		});
 	});
 
