@@ -2,8 +2,11 @@
 
 const Debug				= require('debug');
 const EventEmitter		= require('events');
+const DiffMatchPatch	= require('diff-match-patch');
 
-const ShareDBPromises   = require('./util/sharedb-promises.js');
+const diffEngine		= new DiffMatchPatch.diff_match_patch();
+
+const ShareDBPromises	= require('./util/sharedb-promises.js');
 
 class ShareDBJSProxy extends EventEmitter {
 	static count = 0;
@@ -233,9 +236,55 @@ class ShareDBJSProxy extends EventEmitter {
 		this.debug("toShareDB_array", this.path, prop, data);
 	}
 	
+
+
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_string(target, prop, data, proxy) {
 		this.debug("toShareDB_string", this.path, prop, data);
+
+		const diffs = diffEngine.diff_main(target[prop], data);
+
+		const ops = [];
+
+		let offset = 0;
+		diffs.forEach(diff => {
+			diff.push(offset);
+			offset+=diff[1].length;
+		});
+
+		diffs.reverse().forEach(diff => {
+			const [ diffOp, text, offset ] = diff; 
+			switch (diffOp) {
+				case DiffMatchPatch.DIFF_INSERT: {
+					const p = this.path.slice();
+					p.push(prop);
+					p.push(offset);
+
+					const op = {
+						p,
+						si: text
+					};
+					ops.push(op);
+				}
+				break;
+				case DiffMatchPatch.DIFF_DELETE: {
+					const p = this.path.slice();
+					p.push(prop);
+					p.push(offset);
+
+					const op = {
+						p,
+						sd: text
+					};
+					ops.push(op);
+				}
+				break;
+			}
+		});
+
+		if(ops.length) {
+			return this.toShareDBOps(target, prop, data, ops)
+		}
 	}
 
 	async fromShareDBOps(ops, source) {

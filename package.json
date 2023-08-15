@@ -18,11 +18,12 @@
     "chai": "^4.3.7",
     "eslint": "^6.8.0",
     "mocha": "^10.2.0",
+    "sharedb": "^4.0.0",
     "sinon": "^15.2.0",
-    "sinon-chai": "^3.7.0",
-    "sharedb": "^4.0.0"
+    "sinon-chai": "^3.7.0"
   },
   "dependencies": {
-    "debug": "^4.3.4"
+    "debug": "^4.3.4",
+    "diff-match-patch": "^1.0.5"
   }
 }
