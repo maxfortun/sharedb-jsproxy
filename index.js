@@ -196,7 +196,10 @@ class ShareDBJSProxy extends EventEmitter {
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_object(target, prop, data, proxy) {
 		if(typeof target[prop] === 'string') {
-			return this.toShareDB_string(target, prop, data, proxy);
+			const promise = this.toShareDB_string(target, prop, data, proxy);
+			if(promise) {
+				return promise;
+			}
 		}
 
 		let p = this.path.slice();
@@ -208,6 +211,10 @@ class ShareDBJSProxy extends EventEmitter {
 		};
 
 		return this.toShareDBOp(target, prop, data, op);
+	}
+
+	toShareDBOps(target, prop, data, ops) {
+		return Promise.all(ops.map(op => this.toShareDBOp(target, prop, data, op)));
 	}
 
 	toShareDBOp(target, prop, data, op) {
