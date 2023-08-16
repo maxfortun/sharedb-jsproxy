@@ -43,18 +43,19 @@ class ShareDBJSProxy extends EventEmitter {
 		this.fromShareDBOps = this.fromShareDBOps.bind(this);
 		this.doc.on('op', this.fromShareDBOps);
 
-		return new Proxy(data, this);
+		const proxy = new Proxy(data, this);
+		// this.debug("Returning", proxy);
+		return proxy;
 	}
 
 	setChildProxies(data) {
-		this.debug("setChildProxies", data);
+		// this.debug("setChildProxies", data);
 		for(let prop in data) {
 			this.setChildProxy(prop);
 		}
 	}
 
 	setChildProxy(prop) {
-		// this.debug("setChildProxy in ", this.path, prop);
 		let data = this.data();
 		if(!data) {
 			return;
@@ -147,9 +148,7 @@ class ShareDBJSProxy extends EventEmitter {
 			this.debug("Proxy.get promiseInfo", promiseInfo);
 			return promiseInfo.promise.then(() => {
 				let result = this.childProxies[prop] || target[prop];
-				if(typeof result !== "undefined") {
-					this.debug("Proxy.get async", prop, result);
-				}
+				this.debug("Proxy.get async", prop, result);
 				return result;
 			});
 		}
@@ -224,10 +223,7 @@ class ShareDBJSProxy extends EventEmitter {
 		this.debug('Proxy.set toShareDBOp', this.path, prop, data, op);
 		let promiseInfo = this.promises[prop] = { prop, data };
 		let self = this;
-		promiseInfo.promise = ShareDBPromises.submitOp(this.doc, [ op ])
-								.then(() => {
-									self.setChildProxy(prop);
-								});
+		promiseInfo.promise = ShareDBPromises.submitOp(this.doc, [ op ]);
 		return promiseInfo.promise;
 	}
 
@@ -287,12 +283,12 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 	}
 
-	async fromShareDBOps(ops, source) {
+	fromShareDBOps(ops, source) {
 		// this.debug("fromShareDBOps", this.path, ops, source);
-		return await Promise.all(ops.map(op => this.fromShareDBOp(op, source)));
+		return Promise.all(ops.map(op => this.fromShareDBOp(op, source)));
 	}
 
-	async fromShareDBOp(op, source) {
+	fromShareDBOp(op, source) {
 		let pathOffset = 1;
 		if(op.si || op.sd) {
 			pathOffset = 2;
@@ -310,11 +306,14 @@ class ShareDBJSProxy extends EventEmitter {
 			return;
 		}
 
+		this.debug("fromShareDBOp", op, source);
 		const prop = op.p[op.p.length - pathOffset];
 		const data = this.doc.data[prop];
 
+		this.setChildProxy(prop);
+
 		const event = { prop, data, op, source };
-		this.debug("fromShareDBOp", event);
+		this.debug("fromShareDBOp event", event);
 		this.emit("change", event);
 	}
 }

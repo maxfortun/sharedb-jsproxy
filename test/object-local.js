@@ -62,7 +62,6 @@ describe('object local', async function() {
 			});
 
 			docProxy[prop] = data;
-			await docProxy[prop];
 		});
 	});
 
@@ -70,7 +69,7 @@ describe('object local', async function() {
 		const { docProxy, prop, data } = this;
 
 		await new Promise(async (resolve, reject) => {
-			docProxy.__proxy__.on('change', event => {
+			function listener(event) {
 				debug("event", event);
 				try {
 					expect(event.prop).to.eql(prop);
@@ -79,16 +78,20 @@ describe('object local', async function() {
 				} catch(err) {
 					debug("err" + err);
 					reject(err);
+				} finally {
+					debug("removing listener");
+					docProxy.__proxy__.off('change', listener);
+					debug("removed listener");
 				}
-			});
+			}
+			docProxy.__proxy__.on('change', listener);
 
 			docProxy[prop] = data;
 			await docProxy[prop];
 		});
 
-		data.fr = 'up';
 		await new Promise(async (resolve, reject) => {
-			docProxy.__proxy__.on('change', event => {
+			function listener(event) {
 				debug("event", event);
 				try {
 					expect(event.prop).to.eql(prop);
@@ -97,11 +100,17 @@ describe('object local', async function() {
 				} catch(err) {
 					debug("err" + err);
 					reject(err);
+				} finally {
+					docProxy.__proxy__.off('change', listener);
 				}
-			});
+			}
+			docProxy.__proxy__.on('change', listener);
 
-			docProxy[prop] = data;
-			await docProxy[prop];
+			debug("Getting dataProxy");
+			const dataProxy = await docProxy[prop];
+			debug("Updating dataProxy");
+			dataProxy.fl = 'up';
+			debug("Updated dataProxy");
 		});
 	});
 
