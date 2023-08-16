@@ -71,6 +71,7 @@ describe('string local', function() {
 				} catch(err) {
 					if(eventCount < skipEventCount) {
 						debug("Skipping",++eventCount,"/",skipEventCount,"events", err);
+						return;
 					}
 					reject(err);
 				}

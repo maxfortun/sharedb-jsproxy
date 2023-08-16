@@ -78,6 +78,7 @@ describe('string remote', function() {
 				} catch(err) {
 					if(eventCount < skipEventCount) {
 						debug("Skipping",++eventCount,"/",skipEventCount,"events", err);
+						return;
 					}
 					reject(err);
 				}
