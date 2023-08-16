@@ -1,7 +1,7 @@
 'use strict';
 
 const Debug			= require('debug');
-const debug			= new Debug('sharedb-jsproxy:test:string:remote');
+const debug			= new Debug('sharedb-jsproxy:test:object:local');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
 const expect	= require('chai').expect;
@@ -20,7 +20,7 @@ const Backend	= ShareDB.Backend;
 const ShareDBPromises	= require('../util/sharedb-promises.js');
 const ShareDBJSProxy	= require('../index.js');
 
-describe('object local', function() {
+describe('object local', async function() {
 
 	beforeEach(async function() {
 		this.backend = new Backend();
@@ -48,9 +48,13 @@ describe('object local', function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal(prop);
-				expect(event.data).equal(data);
-				resolve();
+				try {
+					expect(event.prop).equal(prop);
+					expect(event.data).equal(data);
+					resolve();
+				} catch(e) {
+					reject(e);
+				}
 			});
 
 			docProxy[prop] = data;

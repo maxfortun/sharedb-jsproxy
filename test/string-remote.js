@@ -47,9 +47,13 @@ describe('string remote', function() {
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('color');
-				expect(event.data).equal('white');
-				resolve();
+				try {
+					expect(event.prop).equal('color');
+					expect(event.data).equal('white');
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			localProxy.color = 'white';
@@ -63,9 +67,13 @@ describe('string remote', function() {
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal('snoopy');
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal('snoopy');
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			localProxy.name = 'snoopy';
@@ -79,9 +87,13 @@ describe('string remote', function() {
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal(null);
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal(null);
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			localProxy.name = null;
@@ -95,9 +107,13 @@ describe('string remote', function() {
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal(undefined);
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal(undefined);
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			delete localProxy.name;

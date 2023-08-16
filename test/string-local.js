@@ -40,9 +40,13 @@ describe('string local', function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('color');
-				expect(event.data).equal('white');
-				resolve();
+				try {
+					expect(event.prop).equal('color');
+					expect(event.data).equal('white');
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			docProxy.color = 'white';
@@ -56,9 +60,13 @@ describe('string local', function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal('snoopy');
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal('snoopy');
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			docProxy.name = 'snoopy';
@@ -72,9 +80,13 @@ describe('string local', function() {
 
 			docProxy.__proxy__.on('unchanged', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal('fido');
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal('fido');
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			docProxy.name = 'fido';
@@ -88,9 +100,13 @@ describe('string local', function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal(null);
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal(null);
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			docProxy.name = null;
@@ -104,9 +120,13 @@ describe('string local', function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal(undefined);
-				resolve();
+				try {
+					expect(event.prop).equal('name');
+					expect(event.data).equal(undefined);
+					resolve();
+				} catch(err) {
+					reject(err);
+				}
 			});
 
 			delete docProxy.name;
