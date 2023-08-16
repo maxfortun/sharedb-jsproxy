@@ -4,7 +4,9 @@ const Debug			= require('debug');
 const debug			= new Debug('sharedb-jsproxy:test:string:remote');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
-const expect	= require('chai').expect;
+const chai  = require('chai');
+const { expect } = chai;
+chai.config.truncateThreshold = 0;
 
 const logger = {
 	info: sharedbDebug,
@@ -48,8 +50,8 @@ describe('string remote', function() {
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
-					expect(event.prop).equal('color');
-					expect(event.data).equal('white');
+					expect(event.prop).to.eql('color');
+					expect(event.data).to.eql('white');
 					resolve();
 				} catch(err) {
 					reject(err);
@@ -68,8 +70,8 @@ describe('string remote', function() {
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
-					expect(event.prop).equal('name');
-					expect(event.data).equal('snoopy');
+					expect(event.prop).to.eql('name');
+					expect(event.data).to.eql('snoopy');
 					resolve();
 				} catch(err) {
 					reject(err);
@@ -88,8 +90,8 @@ describe('string remote', function() {
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
-					expect(event.prop).equal('name');
-					expect(event.data).equal(null);
+					expect(event.prop).to.eql('name');
+					expect(event.data).to.eql(null);
 					resolve();
 				} catch(err) {
 					reject(err);
@@ -108,8 +110,8 @@ describe('string remote', function() {
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
-					expect(event.prop).equal('name');
-					expect(event.data).equal(undefined);
+					expect(event.prop).to.eql('name');
+					expect(event.data).to.eql(undefined);
 					resolve();
 				} catch(err) {
 					reject(err);

@@ -4,7 +4,9 @@ const Debug			= require('debug');
 const debug			= new Debug('sharedb-jsproxy:test:object:local');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
-const expect	= require('chai').expect;
+const chai	= require('chai');
+const { expect } = chai;
+chai.config.truncateThreshold = 0;
 
 const logger = {
 	info: sharedbDebug,
@@ -49,11 +51,12 @@ describe('object local', async function() {
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
-					expect(event.prop).equal(prop);
-					expect(event.data).equal(data);
+					expect(event.prop).to.eql(prop);
+					expect(event.data).to.eql(data);
 					resolve();
-				} catch(e) {
-					reject(e);
+				} catch(err) {
+					debug("err" + err);
+					reject(err);
 				}
 			});
 
@@ -69,8 +72,8 @@ describe('object local', async function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal('snoopy');
+				expect(event.prop).to.eql('name');
+				expect(event.data).to.eql('snoopy');
 				resolve();
 			});
 
@@ -85,8 +88,8 @@ describe('object local', async function() {
 
 			docProxy.__proxy__.on('unchanged', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal('fido');
+				expect(event.prop).to.eql('name');
+				expect(event.data).to.eql('fido');
 				resolve();
 			});
 
@@ -101,8 +104,8 @@ describe('object local', async function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal(null);
+				expect(event.prop).to.eql('name');
+				expect(event.data).to.eql(null);
 				resolve();
 			});
 
@@ -117,8 +120,8 @@ describe('object local', async function() {
 
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
-				expect(event.prop).equal('name');
-				expect(event.data).equal(undefined);
+				expect(event.prop).to.eql('name');
+				expect(event.data).to.eql(undefined);
 				resolve();
 			});
 
