@@ -93,7 +93,7 @@ class ShareDBJSProxy extends EventEmitter {
 			od: this.data()[prop]
 		};
 
-		return this.toShareDBOp(this, prop, undefined, op);
+		return this.toShareDBOps(this, prop, undefined, [ op ]);
 	}
 
 	getOwnPropertyDescriptor(target, prop) {
@@ -128,6 +128,7 @@ class ShareDBJSProxy extends EventEmitter {
 			}
 			data = data[path[i]];
 		}
+		//this.debug("data:", path, data);
 		return data;
 	}
 
@@ -164,7 +165,9 @@ class ShareDBJSProxy extends EventEmitter {
 	set(target, prop, data) {
 		if(target[prop] === data) {
 			this.debug("Proxy.set unchanged", this.path, prop, data);
-			const event = { prop, data };
+			const path = this.path.slice();
+			path.push(prop);
+			const event = { path, prop, data };
 			this.debug("emit", event);
 			this.emit("unchanged", event);
 			return true;
@@ -212,18 +215,14 @@ class ShareDBJSProxy extends EventEmitter {
 			oi: data
 		};
 
-		return this.toShareDBOp(target, prop, data, op);
+		return this.toShareDBOps(target, prop, data, [ op ]);
 	}
 
 	toShareDBOps(target, prop, data, ops) {
-		return Promise.all(ops.map(op => this.toShareDBOp(target, prop, data, op)));
-	}
-
-	toShareDBOp(target, prop, data, op) {
-		this.debug('Proxy.set toShareDBOp', this.path, prop, data, op);
+		this.debug('Proxy.set toShareDBOps', this.path, prop, data, ops);
 		let promiseInfo = this.promises[prop] = { prop, data };
 		let self = this;
-		promiseInfo.promise = ShareDBPromises.submitOp(this.doc, [ op ]);
+		promiseInfo.promise = ShareDBPromises.submitOp(this.doc, ops);
 		return promiseInfo.promise;
 	}
 
@@ -308,11 +307,15 @@ class ShareDBJSProxy extends EventEmitter {
 
 		this.debug("fromShareDBOp", op, source);
 		const prop = op.p[op.p.length - pathOffset];
-		const data = this.doc.data[prop];
+		const path = op.p.slice();
+		if(pathOffset > 1) {
+			path.pop(pathOffset - 1);
+		}
+		const data = this.data(path);
 
 		this.setChildProxy(prop);
 
-		const event = { prop, data, op, source };
+		const event = { path, prop, data, op, source };
 		this.debug("fromShareDBOp event", event);
 		this.emit("change", event);
 	}

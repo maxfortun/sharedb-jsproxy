@@ -72,11 +72,11 @@ describe('object local', async function() {
 			function listener(event) {
 				debug("event", event);
 				try {
-					expect(event.prop).to.eql(prop);
+					expect(event.path).to.eql([prop]);
 					expect(event.data).to.eql(data);
 					resolve();
 				} catch(err) {
-					debug("err" + err);
+					debug({err});
 					reject(err);
 				} finally {
 					debug("removing listener");
@@ -90,28 +90,44 @@ describe('object local', async function() {
 			await docProxy[prop];
 		});
 
-		await new Promise(async (resolve, reject) => {
+		debug("data init");
+
+		const promise = await new Promise(async (resolve, reject) => {
+			let eventCount = 0;
+			const skipEventCount = 1;
+
 			function listener(event) {
 				debug("event", event);
 				try {
-					expect(event.prop).to.eql(prop);
-					expect(event.data).to.eql(data);
+					expect(event.path).to.eql([prop, 'fl']);
+					expect(event.data).to.eql('up');
 					resolve();
 				} catch(err) {
-					debug("err" + err);
+					if(eventCount < skipEventCount) {
+						debug("Skipping",++eventCount,"/",skipEventCount,"events", err);
+						return;
+					}
+
+					debug({err});
 					reject(err);
-				} finally {
-					docProxy.__proxy__.off('change', listener);
 				}
 			}
 			docProxy.__proxy__.on('change', listener);
 
-			debug("Getting dataProxy");
-			const dataProxy = await docProxy[prop];
-			debug("Updating dataProxy");
-			dataProxy.fl = 'up';
-			debug("Updated dataProxy");
+			try {
+				debug("Getting dataProxy");
+				const dataProxy = await docProxy[prop];
+				debug("Updating dataProxy");
+				dataProxy.fl = 'up';
+				await dataProxy.fl;
+				debug("Updated dataProxy");
+			} catch(e) {
+				reject(e);
+			}
 		});
+
+		debug("exit test");
+		return promise;
 	});
 
 /*
