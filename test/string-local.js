@@ -60,6 +60,8 @@ describe('string local', function() {
 		return new Promise(async (resolve, reject) => {
 			const docProxy = this.docProxy;
 
+			let eventCount = 0;
+			const skipEventCount = 2;
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
@@ -67,6 +69,9 @@ describe('string local', function() {
 					expect(event.data).to.eql('snoopy');
 					resolve();
 				} catch(err) {
+					if(eventCount < skipEventCount) {
+						debug("Skipping",++eventCount,"/",skipEventCount,"events", err);
+					}
 					reject(err);
 				}
 			});

@@ -67,6 +67,8 @@ describe('string remote', function() {
 			const localProxy = this.docProxies[0];
 			const remoteProxy = this.docProxies[1];
 
+			let eventCount = 0;
+			const skipEventCount = 2;
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
@@ -74,6 +76,9 @@ describe('string remote', function() {
 					expect(event.data).to.eql('snoopy');
 					resolve();
 				} catch(err) {
+					if(eventCount < skipEventCount) {
+						debug("Skipping",++eventCount,"/",skipEventCount,"events", err);
+					}
 					reject(err);
 				}
 			});
