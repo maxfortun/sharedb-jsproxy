@@ -34,20 +34,60 @@ describe('object local', async function() {
 		await ShareDBPromises.create(doc, {name: 'fido'});
 
 		this.docProxy = new ShareDBJSProxy(doc);
+
+		this.prop = 'paws';
+		this.data = {
+			fl: 'down',
+			fr: 'down',
+			rl: 'down',
+			rr: 'down'
+		};
+
 	});
 
 	it('new', async function () {
+		const { docProxy, prop, data } = this;
+
 		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
+			docProxy.__proxy__.on('change', event => {
+				debug("event", event);
+				try {
+					expect(event.prop).to.eql(prop);
+					expect(event.data).to.eql(data);
+					resolve();
+				} catch(err) {
+					debug("err" + err);
+					reject(err);
+				}
+			});
 
-			const prop = 'paws';
-			const data = {
-				fl: 'up',
-				fr: 'down',
-				rl: 'down',
-				rr: 'down'
-			};
+			docProxy[prop] = data;
+			await docProxy[prop];
+		});
+	});
 
+	it('change', async function () {
+		const { docProxy, prop, data } = this;
+
+		await new Promise(async (resolve, reject) => {
+			docProxy.__proxy__.on('change', event => {
+				debug("event", event);
+				try {
+					expect(event.prop).to.eql(prop);
+					expect(event.data).to.eql(data);
+					resolve();
+				} catch(err) {
+					debug("err" + err);
+					reject(err);
+				}
+			});
+
+			docProxy[prop] = data;
+			await docProxy[prop];
+		});
+
+		data.fr = 'up';
+		await new Promise(async (resolve, reject) => {
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
@@ -66,22 +106,6 @@ describe('object local', async function() {
 	});
 
 /*
-	it('change', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
-
-			docProxy.__proxy__.on('change', event => {
-				debug("event", event);
-				expect(event.prop).to.eql('name');
-				expect(event.data).to.eql('snoopy');
-				resolve();
-			});
-
-			docProxy.name = 'snoopy';
-			await docProxy.name;
-		});
-	});
-
 	it('unchanged', async function () {
 		return new Promise(async (resolve, reject) => {
 			const docProxy = this.docProxy;

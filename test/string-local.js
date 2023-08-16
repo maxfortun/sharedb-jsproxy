@@ -37,9 +37,9 @@ describe('string local', function() {
 	});
 
 	it('new', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
+		const { docProxy } = this;
 
+		return new Promise(async (resolve, reject) => {
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
@@ -57,9 +57,9 @@ describe('string local', function() {
 	});
 
 	it('change', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
+		const { docProxy } = this;
 
+		return new Promise(async (resolve, reject) => {
 			let eventCount = 0;
 			const skipEventCount = 2;
 			docProxy.__proxy__.on('change', event => {
@@ -83,9 +83,9 @@ describe('string local', function() {
 	});
 
 	it('unchanged', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
+		const { docProxy } = this;
 
+		return new Promise(async (resolve, reject) => {
 			docProxy.__proxy__.on('unchanged', event => {
 				debug("event", event);
 				try {
@@ -103,9 +103,9 @@ describe('string local', function() {
 	});
 
 	it('null', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
+		const { docProxy } = this;
 
+		return new Promise(async (resolve, reject) => {
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
@@ -123,9 +123,9 @@ describe('string local', function() {
 	});
 
 	it('delete', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
+		const { docProxy } = this;
 
+		return new Promise(async (resolve, reject) => {
 			docProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {

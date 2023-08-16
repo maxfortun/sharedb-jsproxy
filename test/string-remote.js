@@ -44,8 +44,8 @@ describe('string remote', function() {
 
 	it('new', async function () {
 		return new Promise(async (resolve, reject) => {
-			const localProxy = this.docProxies[0];
-			const remoteProxy = this.docProxies[1];
+			const { docProxies } = this;
+			const [ localProxy, remoteProxy ] = docProxies;
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
@@ -64,8 +64,8 @@ describe('string remote', function() {
 
 	it('change', async function () {
 		return new Promise(async (resolve, reject) => {
-			const localProxy = this.docProxies[0];
-			const remoteProxy = this.docProxies[1];
+            const { docProxies } = this;
+            const [ localProxy, remoteProxy ] = docProxies;
 
 			let eventCount = 0;
 			const skipEventCount = 2;
@@ -90,8 +90,8 @@ describe('string remote', function() {
 
 	it('null', async function () {
 		return new Promise(async (resolve, reject) => {
-			const localProxy = this.docProxies[0];
-			const remoteProxy = this.docProxies[1];
+            const { docProxies } = this;
+            const [ localProxy, remoteProxy ] = docProxies;
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
@@ -110,8 +110,8 @@ describe('string remote', function() {
 
 	it('delete', async function () {
 		return new Promise(async (resolve, reject) => {
-			const localProxy = this.docProxies[0];
-			const remoteProxy = this.docProxies[1];
+            const { docProxies } = this;
+            const [ localProxy, remoteProxy ] = docProxies;
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
