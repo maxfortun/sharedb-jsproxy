@@ -12,19 +12,19 @@ class ShareDBJSProxy extends EventEmitter {
 	static count = 0;
 
 	constructor(doc, options) {
-		if(!options) {
-			options = {};
-		}
-		const { path, parentShareDBJSProxy } = options;
-
 		super();
 
+		if(!options) {
+			options = { path: [] };
+		}
+
+		Object.assign(this, options);
+
 		this.uid = ShareDBJSProxy.count++;
-		this.debug = new Debug('sharedb-jsproxy:jsproxy['+this.uid+']');
+
+		this.debug = new Debug('sharedb-jsproxy:jsproxy['+ this.uid + (this.name ? ":"+this.name : "") +']');
 
 		this.doc = doc;
-		this.path = path || [];
-		this.parentShareDBJSProxy = parentShareDBJSProxy;
 
 		let data = this.data();
 		if(!data) {

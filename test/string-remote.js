@@ -59,6 +59,7 @@ describe('string remote', function() {
 			});
 
 			localProxy.color = 'white';
+			await localProxy.color;
 		});
 	});
 

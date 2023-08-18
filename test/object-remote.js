@@ -1,7 +1,7 @@
 'use strict';
 
 const Debug			= require('debug');
-const debug			= new Debug('sharedb-jsproxy:test:object:local');
+const debug			= new Debug('sharedb-jsproxy:test:object:remote');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
 const chai	= require('chai');
@@ -22,18 +22,23 @@ const Backend	= ShareDB.Backend;
 const ShareDBPromises	= require('../util/sharedb-promises.js');
 const ShareDBJSProxy	= require('../index.js');
 
-describe('object local', async function() {
+describe('object remote', async function() {
 
 	beforeEach(async function() {
 		this.backend = new Backend();
 		this.connection = this.backend.connect();
 		this.connection.debug = sharedbDebug.enabled;
 
-		const doc = this.doc = this.connection.get('dogs', 'fido');
-		await ShareDBPromises.subscribe(doc);
-		await ShareDBPromises.create(doc, {name: 'fido'});
+		this.docs = [];
+		for(let i = 0; i < 2; i++) {
+			const doc = this.docs[i] = this.connection.get('dogs', 'fido');
 
-		this.docProxy = new ShareDBJSProxy(doc);
+			await ShareDBPromises.subscribe(doc);
+		}
+
+		await ShareDBPromises.create(this.docs[0], {name: 'fido'});
+
+		this.docProxies = this.docs.map(doc => new ShareDBJSProxy(doc));
 
 		this.prop = 'paws';
 		this.data = {
@@ -46,10 +51,11 @@ describe('object local', async function() {
 	});
 
 	it('new', async function () {
-		const { docProxy, prop, data } = this;
+		const { docProxies, prop, data } = this;
+		const [ localProxy, remoteProxy ] = docProxies;
 
 		return new Promise(async (resolve, reject) => {
-			docProxy.__proxy__.on('change', event => {
+			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
 				try {
 					expect(event.prop).to.eql(prop);
@@ -61,12 +67,14 @@ describe('object local', async function() {
 				}
 			});
 
-			docProxy[prop] = data;
+			localProxy[prop] = data;
+			await localProxy[prop];
 		});
 	});
 
 	it('change', async function () {
-		const { docProxy, prop, data } = this;
+		const { docProxies, prop, data } = this;
+		const [ localProxy, remoteProxy ] = docProxies;
 
 		await new Promise(async (resolve, reject) => {
 			function listener(event) {
@@ -79,18 +87,14 @@ describe('object local', async function() {
 					debug({err});
 					reject(err);
 				} finally {
-					debug("removing listener");
-					docProxy.__proxy__.off('change', listener);
-					debug("removed listener");
+					remoteProxy.__proxy__.off('change', listener);
 				}
 			}
-			docProxy.__proxy__.on('change', listener);
+			remoteProxy.__proxy__.on('change', listener);
 
-			docProxy[prop] = data;
-			await docProxy[prop];
+			localProxy[prop] = data;
+			await localProxy[prop];
 		});
-
-		debug("data init");
 
 		const promise = await new Promise(async (resolve, reject) => {
 			let eventCount = 0;
@@ -112,63 +116,11 @@ describe('object local', async function() {
 					reject(err);
 				}
 			}
-			docProxy.__proxy__.on('change', listener);
+			localProxy.__proxy__.on('change', listener);
 
 			try {
-				const dataProxy = await docProxy[prop];
+				const dataProxy = await localProxy[prop];
 				dataProxy.fl = 'up';
-				await dataProxy.fl;
-			} catch(e) {
-				reject(e);
-			}
-		});
-
-		return promise;
-	});
-
-	it('unchanged', async function () {
-		const { docProxy, prop, data } = this;
-
-		await new Promise(async (resolve, reject) => {
-			function listener(event) {
-				debug("event", event);
-				try {
-					expect(event.path).to.eql([prop]);
-					expect(event.data).to.eql(data);
-					resolve();
-				} catch(err) {
-					debug({err});
-					reject(err);
-				} finally {
-					debug("removing listener");
-					docProxy.__proxy__.off('change', listener);
-					debug("removed listener");
-				}
-			}
-			docProxy.__proxy__.on('change', listener);
-
-			docProxy[prop] = data;
-			await docProxy[prop];
-		});
-
-		debug("repeating");
-		const promise = await new Promise(async (resolve, reject) => {
-			function listener(event) {
-				debug("event", event);
-				try {
-					expect(event.path).to.eql([prop, 'fl']);
-					expect(event.data).to.eql('down');
-					resolve();
-				} catch(err) {
-					debug({err});
-					reject(err);
-				}
-			}
-			docProxy.__proxy__.on('unchanged', listener);
-
-			try {
-				const dataProxy = await docProxy[prop];
-				dataProxy.fl = 'down';
 				await dataProxy.fl;
 			} catch(e) {
 				reject(e);
