@@ -115,38 +115,70 @@ describe('object local', async function() {
 			docProxy.__proxy__.on('change', listener);
 
 			try {
-				debug("Getting dataProxy");
 				const dataProxy = await docProxy[prop];
-				debug("Updating dataProxy");
 				dataProxy.fl = 'up';
 				await dataProxy.fl;
-				debug("Updated dataProxy");
 			} catch(e) {
 				reject(e);
 			}
 		});
 
-		debug("exit test");
+		return promise;
+	});
+
+	it('unchanged', async function () {
+		const { docProxy, prop, data } = this;
+
+		await new Promise(async (resolve, reject) => {
+			function listener(event) {
+				debug("event", event);
+				try {
+					expect(event.path).to.eql([prop]);
+					expect(event.data).to.eql(data);
+					resolve();
+				} catch(err) {
+					debug({err});
+					reject(err);
+				} finally {
+					debug("removing listener");
+					docProxy.__proxy__.off('change', listener);
+					debug("removed listener");
+				}
+			}
+			docProxy.__proxy__.on('change', listener);
+
+			docProxy[prop] = data;
+			await docProxy[prop];
+		});
+
+		debug("repeating");
+		const promise = await new Promise(async (resolve, reject) => {
+			function listener(event) {
+				debug("event", event);
+				try {
+					expect(event.path).to.eql([prop, 'fl']);
+					expect(event.data).to.eql('down');
+					resolve();
+				} catch(err) {
+					debug({err});
+					reject(err);
+				}
+			}
+			docProxy.__proxy__.on('unchanged', listener);
+
+			try {
+				const dataProxy = await docProxy[prop];
+				dataProxy.fl = 'down';
+				await dataProxy.fl;
+			} catch(e) {
+				reject(e);
+			}
+		});
+
 		return promise;
 	});
 
 /*
-	it('unchanged', async function () {
-		return new Promise(async (resolve, reject) => {
-			const docProxy = this.docProxy;
-
-			docProxy.__proxy__.on('unchanged', event => {
-				debug("event", event);
-				expect(event.prop).to.eql('name');
-				expect(event.data).to.eql('fido');
-				resolve();
-			});
-
-			docProxy.name = 'fido';
-			await docProxy.name;
-		});
-	});
-
 	it('null', async function () {
 		return new Promise(async (resolve, reject) => {
 			const docProxy = this.docProxy;
