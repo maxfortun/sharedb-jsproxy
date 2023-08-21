@@ -9,10 +9,16 @@
     "type": "git",
     "url": "git+https://github.com/maxfortun/sharedb-jsproxy.git"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "author": "Max Fortun <max@maxf.net>",
+  "license": "ISC",
   "scripts": {
     "lint": "eslint $npm_package_config_main",
-    "test": "DEBUG=sharedb-jsproxy* mocha"
+    "test": "DEBUG=sharedb-jsproxy* mocha",
+	"release": "git tag | grep -q ^$npm_package_version\\$ && echo \"Release $npm_package_version already exists.\" || ( ( git diff-index --quiet HEAD || git commit -a -m \"Releasing $npm_package_version\" ) ; git push && git tag $npm_package_version && git push origin $npm_package_version; npm publish )"
   },
   "devDependencies": {
     "chai": "^4.3.7",
