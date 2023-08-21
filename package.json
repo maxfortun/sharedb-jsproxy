@@ -15,6 +15,7 @@
   },
   "author": "Max Fortun <max@maxf.net>",
   "license": "ISC",
+  "keywords": [ "sharedb" ],
   "scripts": {
     "lint": "eslint $npm_package_config_main",
     "test": "DEBUG=sharedb-jsproxy* mocha",
