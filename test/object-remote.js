@@ -19,7 +19,7 @@ ShareDB.logger.setMethods(logger);
 
 const Backend	= ShareDB.Backend;
 
-const ShareDBPromises	= require('../util/sharedb-promises.js');
+const ShareDBPromises	= require('sharedb-promises');
 const ShareDBJSProxy	= require('../index.js');
 
 describe('object remote', async function() {
@@ -33,10 +33,10 @@ describe('object remote', async function() {
 		for(let i = 0; i < 2; i++) {
 			const doc = this.docs[i] = this.connection.get('dogs', 'fido');
 
-			await ShareDBPromises.subscribe(doc);
+			await ShareDBPromises.doc(doc).subscribe();
 		}
 
-		await ShareDBPromises.create(this.docs[0], {name: 'fido'});
+		await ShareDBPromises.doc(this.docs[0]).create({name: 'fido'});
 
 		this.docProxies = this.docs.map(doc => new ShareDBJSProxy(doc));
 

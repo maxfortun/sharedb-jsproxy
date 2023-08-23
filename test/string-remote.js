@@ -4,7 +4,7 @@ const Debug			= require('debug');
 const debug			= new Debug('sharedb-jsproxy:test:string:remote');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
-const chai  = require('chai');
+const chai = require('chai');
 const { expect } = chai;
 chai.config.truncateThreshold = 0;
 
@@ -19,7 +19,7 @@ ShareDB.logger.setMethods(logger);
 
 const Backend	= ShareDB.Backend;
 
-const ShareDBPromises	= require('../util/sharedb-promises.js');
+const ShareDBPromises	= require('sharedb-promises');
 const ShareDBJSProxy	= require('../index.js');
 
 describe('string remote', function() {
@@ -34,10 +34,10 @@ describe('string remote', function() {
 		for(let i = 0; i < 2; i++) {
 			const doc = this.docs[i] = this.connection.get('dogs', 'fido');
 
-			await ShareDBPromises.subscribe(doc);
+			await ShareDBPromises.doc(doc).subscribe();
 		}
 
-		await ShareDBPromises.create(this.docs[0], {name: 'fido'});
+		await ShareDBPromises.doc(this.docs[0]).create({name: 'fido'});
 
 		this.docProxies = this.docs.map(doc => new ShareDBJSProxy(doc));
 	});
@@ -65,8 +65,8 @@ describe('string remote', function() {
 
 	it('change', async function () {
 		return new Promise(async (resolve, reject) => {
-            const { docProxies } = this;
-            const [ localProxy, remoteProxy ] = docProxies;
+			const { docProxies } = this;
+			const [ localProxy, remoteProxy ] = docProxies;
 
 			let eventCount = 0;
 			const skipEventCount = 2;
@@ -91,8 +91,8 @@ describe('string remote', function() {
 
 	it('null', async function () {
 		return new Promise(async (resolve, reject) => {
-            const { docProxies } = this;
-            const [ localProxy, remoteProxy ] = docProxies;
+			const { docProxies } = this;
+			const [ localProxy, remoteProxy ] = docProxies;
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);
@@ -111,8 +111,8 @@ describe('string remote', function() {
 
 	it('delete', async function () {
 		return new Promise(async (resolve, reject) => {
-            const { docProxies } = this;
-            const [ localProxy, remoteProxy ] = docProxies;
+			const { docProxies } = this;
+			const [ localProxy, remoteProxy ] = docProxies;
 
 			remoteProxy.__proxy__.on('change', event => {
 				debug("event", event);

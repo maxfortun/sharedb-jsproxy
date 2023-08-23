@@ -4,7 +4,7 @@ const Debug			= require('debug');
 const debug			= new Debug('sharedb-jsproxy:test:string:remote');
 const sharedbDebug	= new Debug('sharedb-jsproxy:sharedb');
 
-const chai  = require('chai');
+const chai = require('chai');
 const { expect } = chai;
 chai.config.truncateThreshold = 0;
 
@@ -19,7 +19,7 @@ ShareDB.logger.setMethods(logger);
 
 const Backend	= ShareDB.Backend;
 
-const ShareDBPromises	= require('../util/sharedb-promises.js');
+const ShareDBPromises	= require('sharedb-promises');
 const ShareDBJSProxy	= require('../index.js');
 
 describe('string local', function() {
@@ -30,8 +30,8 @@ describe('string local', function() {
 		this.connection.debug = sharedbDebug.enabled;
 
 		const doc = this.doc = this.connection.get('dogs', 'fido');
-		await ShareDBPromises.subscribe(doc);
-		await ShareDBPromises.create(doc, {name: 'fido'});
+		await ShareDBPromises.doc(doc).subscribe();
+		await ShareDBPromises.doc(doc).create({name: 'fido'});
 
 		this.docProxy = new ShareDBJSProxy(doc);
 	});

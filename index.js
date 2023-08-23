@@ -6,7 +6,7 @@ const DiffMatchPatch	= require('diff-match-patch');
 
 const diffEngine		= new DiffMatchPatch.diff_match_patch();
 
-const ShareDBPromises	= require('./util/sharedb-promises.js');
+const ShareDBPromises	= require('sharedb-promises');
 
 class ShareDBJSProxy extends EventEmitter {
 	static count = 0;
@@ -222,7 +222,7 @@ class ShareDBJSProxy extends EventEmitter {
 		this.debug('Proxy.set toShareDBOps', this.path, prop, data, ops);
 		let promiseInfo = this.promises[prop] = { prop, data };
 		let self = this;
-		promiseInfo.promise = ShareDBPromises.submitOp(this.doc, ops);
+		promiseInfo.promise = ShareDBPromises.doc(this.doc).submitOp(ops);
 		return promiseInfo.promise;
 	}
 
