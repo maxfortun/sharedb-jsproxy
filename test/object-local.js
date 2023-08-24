@@ -49,7 +49,7 @@ describe('object local', async function() {
 		const { docProxy, prop, data } = this;
 
 		return new Promise(async (resolve, reject) => {
-			docProxy.__proxy__.on('change', event => {
+			docProxy.__proxy__.on('change', async event => {
 				debug("event", event);
 				try {
 					expect(event.prop).to.eql(prop);

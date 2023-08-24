@@ -23,14 +23,14 @@ class ShareDBJSProxy extends EventEmitter {
 		this.uid = ShareDBJSProxy.count++;
 
 		if(!this.name) {
-			this.name = this.path.join('/');
+			this.name = this.path.join('.');
 			if(this.name) {
-				this.name = "." + this.name;
+				this.name = ":" + this.name;
 			}
-			this.name = doc.collection + "." + doc.id + this.name;
+			this.name = doc.collection + ":" + doc.id + this.name;
 		}
 
-		this.debug = new Debug('sharedb-jsproxy:jsproxy['+ this.uid + (this.name ? ":"+this.name : "") +']');
+		this.debug = new Debug('sharedb-jsproxy:jsproxy:' + this.name + ':'+ this.uid);
 
 		this.doc = doc;
 
