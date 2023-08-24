@@ -252,10 +252,12 @@ class ShareDBJSProxy extends EventEmitter {
 		let offset = 0;
 		diffs.forEach(diff => {
 			diff.push(offset);
-			offset+=diff[1].length;
+			if(diff[0] !== DiffMatchPatch.DIFF_DELETE) {
+				offset+=diff[1].length;
+			}
 		});
 
-		diffs.reverse().forEach(diff => {
+		diffs.forEach(diff => {
 			const [ diffOp, text, offset ] = diff; 
 			switch (diffOp) {
 				case DiffMatchPatch.DIFF_INSERT: {

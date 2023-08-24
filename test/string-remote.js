@@ -42,7 +42,7 @@ describe('string remote', function() {
 		this.docProxies = this.docs.map(doc => new ShareDBJSProxy(doc));
 	});
 
-	it('new', async function () {
+	it('change event on create', async function () {
 		return new Promise(async (resolve, reject) => {
 			const { docProxies } = this;
 			const [ localProxy, remoteProxy ] = docProxies;
@@ -63,7 +63,7 @@ describe('string remote', function() {
 		});
 	});
 
-	it('change', async function () {
+	it('change event on update', async function () {
 		return new Promise(async (resolve, reject) => {
 			const { docProxies } = this;
 			const [ localProxy, remoteProxy ] = docProxies;
@@ -89,7 +89,7 @@ describe('string remote', function() {
 		});
 	});
 
-	it('null', async function () {
+	it('change event on null', async function () {
 		return new Promise(async (resolve, reject) => {
 			const { docProxies } = this;
 			const [ localProxy, remoteProxy ] = docProxies;
@@ -109,7 +109,7 @@ describe('string remote', function() {
 		});
 	});
 
-	it('delete', async function () {
+	it('change event on delete', async function () {
 		return new Promise(async (resolve, reject) => {
 			const { docProxies } = this;
 			const [ localProxy, remoteProxy ] = docProxies;
@@ -127,6 +127,19 @@ describe('string remote', function() {
 
 			delete localProxy.name;
 		});
+	});
+
+	it('update', async function () {
+		const { docProxies } = this;
+		const [ localProxy, remoteProxy ] = docProxies;
+
+		localProxy.name = 'event123';
+		await localProxy.name;
+		expect(await remoteProxy.name).to.eql('event123');
+
+		localProxy.name = 'testString1';
+		await localProxy.name;
+		expect(await remoteProxy.name).to.eql('testString1');
 	});
 
 });

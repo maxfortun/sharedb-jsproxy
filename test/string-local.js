@@ -36,7 +36,7 @@ describe('string local', function() {
 		this.docProxy = new ShareDBJSProxy(doc);
 	});
 
-	it('new', async function () {
+	it('change event on create', async function () {
 		const { docProxy } = this;
 
 		return new Promise(async (resolve, reject) => {
@@ -56,7 +56,7 @@ describe('string local', function() {
 		});
 	});
 
-	it('change', async function () {
+	it('change event on update', async function () {
 		const { docProxy } = this;
 
 		return new Promise(async (resolve, reject) => {
@@ -82,7 +82,7 @@ describe('string local', function() {
 		});
 	});
 
-	it('unchanged', async function () {
+	it('unchanged event', async function () {
 		const { docProxy } = this;
 
 		return new Promise(async (resolve, reject) => {
@@ -102,7 +102,7 @@ describe('string local', function() {
 		});
 	});
 
-	it('null', async function () {
+	it('change event on null', async function () {
 		const { docProxy } = this;
 
 		return new Promise(async (resolve, reject) => {
@@ -122,7 +122,7 @@ describe('string local', function() {
 		});
 	});
 
-	it('delete', async function () {
+	it('change event on delete', async function () {
 		const { docProxy } = this;
 
 		return new Promise(async (resolve, reject) => {
@@ -141,5 +141,17 @@ describe('string local', function() {
 			await docProxy.name;
 		});
 	});
+
+	it('update', async function () {
+		const { docProxy } = this;
+
+
+		docProxy.name = 'event123';
+		expect(await docProxy.name).to.eql('event123');
+
+		docProxy.name = 'testString1';
+		expect(await docProxy.name).to.eql('testString1');
+	});
+
 
 });
