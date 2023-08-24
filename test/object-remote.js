@@ -104,7 +104,7 @@ describe('object remote', async function() {
 				debug("event", event);
 				try {
 					expect(event.path).to.eql([prop, 'fl']);
-					expect(event.data).to.eql('up');
+					expect(event.data).to.eql({ position: 'up', claws: [ 'sharp', 'sharp', 'sharp', 'dull'] });
 					resolve();
 				} catch(err) {
 					if(eventCount < skipEventCount) {
@@ -120,7 +120,7 @@ describe('object remote', async function() {
 
 			try {
 				const dataProxy = await localProxy[prop];
-				dataProxy.fl = 'up';
+				dataProxy.fl = { position: 'up', claws: [ 'sharp', 'sharp', 'sharp', 'dull'] };
 				await dataProxy.fl;
 			} catch(e) {
 				reject(e);
