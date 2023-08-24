@@ -22,6 +22,14 @@ class ShareDBJSProxy extends EventEmitter {
 
 		this.uid = ShareDBJSProxy.count++;
 
+		if(!this.name) {
+			this.name = this.path.join('/');
+			if(this.name) {
+				this.name = "." + this.name;
+			}
+			this.name = doc.collection + "." + doc.id + this.name;
+		}
+
 		this.debug = new Debug('sharedb-jsproxy:jsproxy['+ this.uid + (this.name ? ":"+this.name : "") +']');
 
 		this.doc = doc;
@@ -71,7 +79,7 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 		let childPath = this.path.slice();
 		childPath.push(prop);
-		this.debug("setChildProxy", childPath, data, this.doc.data);
+		// this.debug("setChildProxy", childPath, data, this.doc.data);
 		try {
 			this.childProxies[prop] = new ShareDBJSProxy(this.doc, { path: childPath, parentShareDBJSProxy: this });
 		} catch(e) {
@@ -295,13 +303,11 @@ class ShareDBJSProxy extends EventEmitter {
 
 		for(let i = 0; i < op.p.length - pathOffset && i < this.path.length; i++) {
 			if(op.p[i] != this.path[i]) {
-				this.debug("fromShareDBOp error: path not found", this.path, op, source);
 				return;
 			}
 		}
 
 		if(op.p.length - pathOffset < this.path.length) {
-			this.debug("fromShareDBOp error: path too short", this.path, op, source);
 			return;
 		}
 
