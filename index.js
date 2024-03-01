@@ -25,9 +25,9 @@ class ShareDBJSProxy extends EventEmitter {
 		if(!this.name) {
 			this.name = this.path.join('.');
 			if(this.name) {
-				this.name = ":" + this.name;
+				this.name = ':' + this.name;
 			}
-			this.name = doc.collection + ":" + doc.id + this.name;
+			this.name = doc.collection + ':' + doc.id + this.name;
 		}
 
 		this.debug = new Debug('sharedb-jsproxy:jsproxy:' + this.name + ':'+ this.uid);
@@ -36,12 +36,12 @@ class ShareDBJSProxy extends EventEmitter {
 
 		let data = this.data();
 		if(!data) {
-			throw new Error("Could not find path", this.path, "in", this.doc.data);
+			throw new Error('Could not find path', this.path, 'in', this.doc.data);
 		}
 
 		this.dataType = this.inferType(data);
 
-		this.debug("constructor", this.path, this.dataType, data);
+		this.debug('constructor', this.path, this.dataType, data);
 
 		this.childProxies = {};
 		this.setChildProxies(data);
@@ -52,12 +52,12 @@ class ShareDBJSProxy extends EventEmitter {
 		this.doc.on('op', this.fromShareDBOps);
 
 		const proxy = new Proxy(data, this);
-		// this.debug("Returning", proxy);
+		// this.debug('Returning', proxy);
 		return proxy;
 	}
 
 	setChildProxies(data) {
-		// this.debug("setChildProxies", data);
+		// this.debug('setChildProxies', data);
 		for(let prop in data) {
 			this.setChildProxy(prop);
 		}
@@ -71,7 +71,7 @@ class ShareDBJSProxy extends EventEmitter {
 
 		data = data[prop];
 		let dataType = this.inferType(data);
-		if(!data || dataType !== "object") {
+		if(!data || ( dataType !== 'object' && dataType !== 'array' ) ) {
 			if(this.childProxies[prop]) {
 				delete this.childProxies[prop];
 			}
@@ -79,17 +79,17 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 		let childPath = this.path.slice();
 		childPath.push(prop);
-		// this.debug("setChildProxy", childPath, data, this.doc.data);
+		// this.debug('setChildProxy', childPath, data, this.doc.data);
 		try {
 			this.childProxies[prop] = new ShareDBJSProxy(this.doc, { path: childPath, parentShareDBJSProxy: this });
 		} catch(e) {
-			this.debug("Failed to create a child proxy for", childPath, dataType, data, this.doc.data, e);
+			this.debug('Failed to create a child proxy for', childPath, dataType, data, this.doc.data, e);
 			throw e;
 		}
 	}
 
 	defineProperty(target, prop, descriptor) {
-		this.debug("Proxy.defineProperty", this.path, target, prop, descriptor);
+		this.debug('Proxy.defineProperty', this.path, target, prop, descriptor);
 	}
 
 	deleteProperty(target, prop) {
@@ -106,19 +106,19 @@ class ShareDBJSProxy extends EventEmitter {
 
 	getOwnPropertyDescriptor(target, prop) {
 		let result = Object.getOwnPropertyDescriptor(this.data(), prop);
-		this.debug("Proxy.getOwnPropertyDescriptor", this.path, prop, result);
+		this.debug('Proxy.getOwnPropertyDescriptor', this.path, prop, result);
 		return result;
 	}
 
 	has(target, prop) {
 		let result = target[prop];
-		this.debug("Proxy.has", this.path, target, prop, result);
+		this.debug('Proxy.has', this.path, target, prop, result);
 		return result;
 	}
 
 	ownKeys(target) {
 		let result = Reflect.ownKeys(target);
-		this.debug("Proxy.ownKeys", this.path, target, result);
+		this.debug('Proxy.ownKeys', this.path, target, result);
 		return result;
 	}
 
@@ -136,7 +136,7 @@ class ShareDBJSProxy extends EventEmitter {
 			}
 			data = data[path[i]];
 		}
-		//this.debug("data:", path, data);
+		//this.debug('data:', path, data);
 		return data;
 	}
 
@@ -146,25 +146,25 @@ class ShareDBJSProxy extends EventEmitter {
 
 	// eslint-disable-next-line no-unused-vars
 	get(target, prop, receiver) {
-		if(prop === "__proxy__") {
-			this.debug("Proxy.get this", this.path, prop);
+		if(prop === '__proxy__') {
+			this.debug('Proxy.get this', this.path, prop);
 			return this;
 		}
 
-		this.debug("Proxy.get", this.path, prop);
+		this.debug('Proxy.get', this.path, prop);
 		let promiseInfo = this.promises[prop];
 		if(promiseInfo) {
-			this.debug("Proxy.get promiseInfo", promiseInfo);
+			this.debug('Proxy.get promiseInfo', promiseInfo);
 			return promiseInfo.promise.then(() => {
 				let result = this.childProxies[prop] || target[prop];
-				this.debug("Proxy.get async", prop, result);
+				this.debug('Proxy.get async', prop, result);
 				return result;
 			});
 		}
 
 		let result = this.childProxies[prop] || target[prop];
-		if(typeof result !== "undefined") {
-			this.debug("Proxy.get sync", prop, result);
+		if(typeof result !== 'undefined') {
+			this.debug('Proxy.get sync', prop, result);
 		}
 
 		return result;
@@ -172,19 +172,20 @@ class ShareDBJSProxy extends EventEmitter {
 
 	set(target, prop, data) {
 		if(target[prop] === data) {
-			this.debug("Proxy.set unchanged", this.path, prop, data);
+			this.debug('Proxy.set unchanged', this.path, prop, data);
 			const path = this.path.slice();
 			path.push(prop);
 
-			this.emitUp("unchanged", { path, prop, data });
+			this.emitUp('unchanged', { path, prop, data });
 
 			return true;
 		}
 
-		this.debug("Proxy.set", this.path, prop, data);
-		let setter = this["toShareDB_"+this.dataType];
+		const targetDataType = this.dataType;
+		this.debug('Proxy.set', this.path, prop, targetDataType, data);
+		let setter = this['toShareDB_'+targetDataType];
 		if(!setter) {
-			throw new Error("Could not find setter for type "+this.dataType);
+			throw new Error('Could not find setter for type '+targetDataType);
 		}
 
 		return setter.apply(this, [ target, prop, data ]);
@@ -192,13 +193,13 @@ class ShareDBJSProxy extends EventEmitter {
 
 	inferType(data) {
 		if(!data) {
-			return "object";
+			return 'object';
 		}
 
 		let type = typeof data;
-		if(type === "object") {
+		if(type === 'object') {
 			if(Array.isArray(data)) {
-				return "array";
+				return 'array';
 			}
 			return type;
 		}
@@ -236,14 +237,14 @@ class ShareDBJSProxy extends EventEmitter {
 
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_array(target, prop, data, proxy) {
-		this.debug("toShareDB_array", this.path, prop, data);
+		this.debug('toShareDB_array', this.path, prop, data);
 	}
 	
 
 
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_string(target, prop, data, proxy) {
-		this.debug("toShareDB_string", this.path, prop, data);
+		this.debug('toShareDB_string', this.path, prop, data);
 
 		const diffs = diffEngine.diff_main(target[prop], data);
 
@@ -293,7 +294,7 @@ class ShareDBJSProxy extends EventEmitter {
 	}
 
 	fromShareDBOps(ops, source) {
-		// this.debug("fromShareDBOps", this.path, ops, source);
+		// this.debug('fromShareDBOps', this.path, ops, source);
 		return Promise.all(ops.map(op => this.fromShareDBOp(op, source)));
 	}
 
@@ -313,7 +314,7 @@ class ShareDBJSProxy extends EventEmitter {
 			return;
 		}
 
-		this.debug("fromShareDBOp", op, source);
+		this.debug('fromShareDBOp', op, source);
 		const prop = op.p[op.p.length - pathOffset];
 		const path = op.p.slice();
 		if(pathOffset > 1) {
@@ -323,11 +324,11 @@ class ShareDBJSProxy extends EventEmitter {
 
 		this.setChildProxy(prop);
 
-		this.emitUp("change", { path, prop, data, op, source });
+		this.emitUp('change', { path, prop, data, op, source });
 	}
 
 	emitUp(name, event) {
-		this.debug("emitUp", name, event);
+		this.debug('emitUp', name, event);
 		this.emit(name, event);
 
 		if(this.parentShareDBJSProxy) {

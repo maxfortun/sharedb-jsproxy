@@ -116,6 +116,7 @@ describe('object local', async function() {
 
 			try {
 				const dataProxy = await docProxy[prop];
+				debug('typeof dataProxy', typeof dataProxy, dataProxy instanceof ShareDBJSProxy);
 				dataProxy.fl = { position: 'up', claws: [ 'sharp', 'sharp', 'sharp', 'dull'] };
 				await dataProxy.fl;
 			} catch(e) {
