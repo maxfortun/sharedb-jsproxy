@@ -39,7 +39,7 @@ class ShareDBJSProxy extends EventEmitter {
 			throw new Error("Could not find path", this.path, "in", this.doc.data);
 		}
 
-		this.dataType = typeof data;
+		this.dataType = this.inferType(data);
 
 		this.debug("constructor", this.path, this.dataType, data);
 
@@ -70,7 +70,7 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 
 		data = data[prop];
-		let dataType = typeof data;
+		let dataType = this.inferType(data);
 		if(!data || dataType !== "object") {
 			if(this.childProxies[prop]) {
 				delete this.childProxies[prop];
