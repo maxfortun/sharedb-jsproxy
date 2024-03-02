@@ -14,6 +14,7 @@ class ShareDBJSProxy extends EventEmitter {
 	constructor(doc, options) {
 		super();
 		this.setMaxListeners(Infinity);
+		doc.setMaxListeners(Infinity);
 
 		if(!options) {
 			options = { path: [] };
