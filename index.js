@@ -81,7 +81,7 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 		let childPath = this.path.slice();
 		childPath.push(prop);
-		// this.debug('setChildProxy', childPath, data, this.doc.data);
+		this.debug('setChildProxy', childPath, data, this.doc.data);
 		try {
 			this.childProxies[prop] = new ShareDBJSProxy(this.doc, { path: childPath, parentShareDBJSProxy: this });
 		} catch(e) {

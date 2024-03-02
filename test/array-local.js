@@ -115,6 +115,7 @@ describe('array local', async function() {
 				docProxy[prop] = [ 'rr' ];
 				const dataProxy2 = await docProxy[prop];
 				debug("data get change", prop, dataProxy2);
+				expect(dataProxy2).to.eql([ 'rr' ]);
 			} catch(e) {
 				reject(e);
 			}
