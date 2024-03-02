@@ -123,4 +123,15 @@ describe('array local', async function() {
 
 		return promise;
 	});
+
+	it('change array of objects', async function () {
+		const { docProxy, prop, data } = this;
+		docProxy.array = [ { name: 'bar' } ]; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([ { name: 'bar' } ]);
+
+		docProxy.array = [ { name: 'bar' }, { name: 'baz'} ]; 	
+		const result2 = await docProxy.array;
+		expect(result2).to.eql([ { name: 'bar' }, { name: 'baz'} ]);
+	});
 });

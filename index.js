@@ -157,10 +157,10 @@ class ShareDBJSProxy extends EventEmitter {
 		let promiseInfo = this.promises[prop];
 		if(promiseInfo?.promise instanceof Promise) {
 			this.debug('Proxy.get promiseInfo', promiseInfo);
-			return promiseInfo.promise.then(() => {
+			return promiseInfo.promise.then(async () => {
 				let result = this.childProxies[prop] || target[prop];
 				this.debug('Proxy.get async', prop, result);
-				return result;
+				return await result;
 			});
 		}
 
@@ -210,11 +210,11 @@ class ShareDBJSProxy extends EventEmitter {
 	}
 
 	// eslint-disable-next-line no-unused-vars
-	toShareDB_object(target, prop, data, proxy) {
+	async toShareDB_object(target, prop, data, proxy) {
 		if(typeof target[prop] === 'string' && typeof data === 'string') {
 			const promise = this.toShareDB_string(target, prop, data, proxy);
 			if(promise) {
-				return promise;
+				return await promise;
 			}
 		}
 
@@ -229,12 +229,12 @@ class ShareDBJSProxy extends EventEmitter {
 		return this.toShareDBOps(target, prop, data, [ op ]);
 	}
 
-	toShareDBOps(target, prop, data, ops) {
+	async toShareDBOps(target, prop, data, ops) {
 		this.debug('Proxy.set toShareDBOps', this.path, prop, data, ops);
 		let promiseInfo = this.promises[prop] = { prop, data };
 		let self = this;
 		promiseInfo.promise = ShareDBPromises.doc(this.doc).submitOp(ops);
-		return promiseInfo.promise;
+		return await promiseInfo.promise;
 	}
 
 	// eslint-disable-next-line no-unused-vars
