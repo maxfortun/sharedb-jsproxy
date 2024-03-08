@@ -247,14 +247,32 @@ class ShareDBJSProxy extends EventEmitter {
 
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_array(target, prop, data, proxy) {
-		this.debug('toShareDB_array 0', this.path, target, prop, target[prop], data);
+		this.debug('toShareDB_array', this.path, target, prop, target[prop], data);
+		const ops = [];
+
+		const p = this.path.slice();
+		p.push(prop);
+		const prev_data = target[prop];
+		if(prev_data) {
+			const op = {
+				p,
+				ld: prev_data
+			};
+			ops.push(op);
+		}
+		const op = {
+			p,
+			li: data
+		};
+		ops.push(op);
+
+		return this.toShareDBOps(target, prop, data, ops);
 	}
 
 	toShareDB_array_merge(target, prop, data, proxy) {
-		this.debug('toShareDB_array_merge 0', this.path, target, prop, target[prop], data);
+		this.debug('toShareDB_array_merge', this.path, target, prop, target[prop], data);
 
 		const array = target[prop] || [];
-		this.debug('toShareDB_array_merge', 'array', array);
 
 		let start = 0;
 		for(; start < array.length && start < data.length; start++) {
@@ -263,23 +281,17 @@ class ShareDBJSProxy extends EventEmitter {
 			}
 		}
 
-		this.debug('toShareDB_array_merge', this.path, 'keep', start, 'start elements');
-			
 		let end = 0;
 		for(; array.length - end > start; end++) {
 			
 			const diff = JSON.stringify(array[array.length - end - 1]) != JSON.stringify(data[data.length - end - 1])
-			this.debug('toShareDB_array_merge', this.path, 'check', diff, end, array[array.length - end - 1], data[data.length - end - 1], 'end element');
 			if(diff) {
 				break;
 			}
 		}
 
-		this.debug('toShareDB_array_merge', this.path, 'keep', end, 'end elements');
-
 		const ops = [];
 		for(let i = start; i < array.length - end; i++) {
-			this.debug('toShareDB_array_merge', this.path, 'delete', i, array[i]);
 			const p = this.path.slice();
 			p.push(prop);
 			p.push(i);
@@ -293,8 +305,6 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 
 		for(let i = start; i < data.length - end; i++) {
-			this.debug('toShareDB_array_merge', this.path, 'insert', i, data[i]);
-
 			const p = this.path.slice();
 			p.push(prop);
 			p.push(i);

@@ -122,7 +122,7 @@ describe('array local', async function() {
 		expect(result).to.eql([ { name: 'foo' } ]);
 
 		docProxy.array[1] = { name: 'bar'}; 	
-		const result2 = await docProxy.array;
-		expect(result2).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
+		const result2 = await docProxy.array[1];
+		expect(docProxy.array).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
 	});
 });
