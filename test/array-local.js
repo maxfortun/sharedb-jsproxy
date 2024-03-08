@@ -60,78 +60,69 @@ describe('array local', async function() {
 		});
 	});
 
-	it('change', async function () {
+	it('push', async function () {
 		const { docProxy, prop, data } = this;
+		docProxy.array = [ { name: 'foo' } ]; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([ { name: 'foo' } ]);
 
-		await new Promise(async (resolve, reject) => {
-			function listener(event) {
-				debug("event", event);
-				try {
-					expect(event.path).to.eql([prop]);
-					expect(event.data).to.eql(data);
-					resolve();
-				} catch(err) {
-					debug({err});
-					reject(err);
-				} finally {
-					debug("removing listener");
-					docProxy.__proxy__.off('change', listener);
-					debug("removed listener");
-				}
-			}
-			docProxy.__proxy__.on('change', listener);
-
-			docProxy[prop] = data;
-			await docProxy[prop];
-		});
-
-		debug("data init");
-
-		const promise = await new Promise(async (resolve, reject) => {
-			let eventCount = 0;
-			const skipEventCount = 1;
-
-			function listener(event) {
-				debug("event", event);
-				try {
-					expect(event.path).to.eql([prop]);
-					expect(event.data).to.eql([ 'rr' ]);
-					resolve();
-				} catch(err) {
-					if(eventCount < skipEventCount) {
-						debug("Skipping",++eventCount,"/",skipEventCount,"events", err);
-						return;
-					}
-
-					debug({err});
-					reject(err);
-				}
-			}
-			docProxy.__proxy__.on('change', listener);
-
-			try {
-				const dataProxy = await docProxy[prop];
-				debug("data get orig", prop, dataProxy);
-				docProxy[prop] = [ 'rr' ];
-				const dataProxy2 = await docProxy[prop];
-				debug("data get change", prop, dataProxy2);
-				expect(dataProxy2).to.eql([ 'rr' ]);
-			} catch(e) {
-				reject(e);
-			}
-		});
-
-		return promise;
+		docProxy.array = [ { name: 'foo' }, { name: 'bar'} ]; 	
+		const result2 = await docProxy.array;
+		expect(result2).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
 	});
 
-	it('change array of objects', async function () {
+	it('pop', async function () {
+		const { docProxy, prop, data } = this;
+		docProxy.array = [ { name: 'foo' }, { name: 'bar'} ]; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
+
+		docProxy.array = [ { name: 'foo' } ]; 	
+		const result2 = await docProxy.array;
+		expect(result2).to.eql([ { name: 'foo' } ]);
+	});
+
+	it('unshift', async function () {
 		const { docProxy, prop, data } = this;
 		docProxy.array = [ { name: 'bar' } ]; 	
 		const result = await docProxy.array;
 		expect(result).to.eql([ { name: 'bar' } ]);
 
-		docProxy.array = [ { name: 'bar' }, { name: 'baz'} ]; 	
+		docProxy.array = [ { name: 'foo' }, { name: 'bar'} ]; 	
 		const result2 = await docProxy.array;
-		expect(result2).to.eql([ { name: 'bar' }, { name: 'baz'} ]);
+		expect(result2).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
+	});
+
+	it('shift', async function () {
+		const { docProxy, prop, data } = this;
+		docProxy.array = [ { name: 'foo' }, { name: 'bar'} ]; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
+
+		docProxy.array = [ { name: 'bar' } ]; 	
+		const result2 = await docProxy.array;
+		expect(result2).to.eql([ { name: 'bar' } ]);
+	});
+
+	it('array change', async function () {
+		const { docProxy, prop, data } = this;
+		docProxy.array = [ { name: 'foo' }, { name: 'bar'}, { name: 'baz'} ]; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([ { name: 'foo' }, { name: 'bar'}, { name: 'baz'} ]);
+
+		docProxy.array = [ { name: 'foo' }, { name: 'x'}, { name: 'baz'} ]; 	
+		const result2 = await docProxy.array;
+		expect(result2).to.eql([ { name: 'foo' }, { name: 'x'}, { name: 'baz'} ]);
+	});
+
+	it('append to array', async function () {
+		const { docProxy, prop, data } = this;
+		docProxy.array = [ { name: 'foo' } ]; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([ { name: 'foo' } ]);
+
+		docProxy.array[1] = { name: 'bar'}; 	
+		const result2 = await docProxy.array;
+		expect(result2).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
 	});
 });

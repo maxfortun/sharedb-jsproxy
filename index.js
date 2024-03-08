@@ -36,7 +36,7 @@ class ShareDBJSProxy extends EventEmitter {
 
 		this.doc = doc;
 
-		let data = this.data();
+		const data = this.data();
 		if(!data) {
 			throw new Error('Could not find path', this.path, 'in', this.doc.data);
 		}
@@ -60,7 +60,7 @@ class ShareDBJSProxy extends EventEmitter {
 
 	setChildProxies(data) {
 		// this.debug('setChildProxies', data);
-		for(let prop in data) {
+		for(const prop in data) {
 			this.setChildProxy(prop);
 		}
 	}
@@ -157,7 +157,7 @@ class ShareDBJSProxy extends EventEmitter {
 		let promiseInfo = this.promises[prop];
 		if(promiseInfo?.promise instanceof Promise) {
 			this.debug('Proxy.get promiseInfo', promiseInfo);
-			return promiseInfo.promise.then(async () => {
+			return promiseInfo.promise.then(() => {
 				let result = this.childProxies[prop] || target[prop];
 				this.debug('Proxy.get async', prop, result);
 				delete this.promises[prop];
@@ -211,9 +211,16 @@ class ShareDBJSProxy extends EventEmitter {
 	}
 
 	// eslint-disable-next-line no-unused-vars
-	async toShareDB_object(target, prop, data, proxy) {
+	toShareDB_object(target, prop, data, proxy) {
 		if(typeof target[prop] === 'string' && typeof data === 'string') {
 			const promise = this.toShareDB_string(target, prop, data, proxy);
+			if(promise) {
+				return promise;
+			}
+		}
+
+		if(Array.isArray(target[prop]) && Array.isArray(data)) {
+			const promise = this.toShareDB_array_merge(target, prop, data, proxy);
 			if(promise) {
 				return promise;
 			}
@@ -230,7 +237,7 @@ class ShareDBJSProxy extends EventEmitter {
 		return this.toShareDBOps(target, prop, data, [ op ]);
 	}
 
-	async toShareDBOps(target, prop, data, ops) {
+	toShareDBOps(target, prop, data, ops) {
 		this.debug('Proxy.set toShareDBOps', this.path, prop, data, ops);
 		let promiseInfo = this.promises[prop] = { prop, data };
 		let self = this;
@@ -240,7 +247,67 @@ class ShareDBJSProxy extends EventEmitter {
 
 	// eslint-disable-next-line no-unused-vars
 	toShareDB_array(target, prop, data, proxy) {
-		this.debug('toShareDB_array', this.path, prop, data);
+		this.debug('toShareDB_array 0', this.path, target, prop, target[prop], data);
+	}
+
+	toShareDB_array_merge(target, prop, data, proxy) {
+		this.debug('toShareDB_array_merge 0', this.path, target, prop, target[prop], data);
+
+		const array = target[prop] || [];
+		this.debug('toShareDB_array_merge', 'array', array);
+
+		let start = 0;
+		for(; start < array.length && start < data.length; start++) {
+			if(JSON.stringify(array[start]) != JSON.stringify(data[start])) {
+				break;
+			}
+		}
+
+		this.debug('toShareDB_array_merge', this.path, 'keep', start, 'start elements');
+			
+		let end = 0;
+		for(; array.length - end > start; end++) {
+			
+			const diff = JSON.stringify(array[array.length - end - 1]) != JSON.stringify(data[data.length - end - 1])
+			this.debug('toShareDB_array_merge', this.path, 'check', diff, end, array[array.length - end - 1], data[data.length - end - 1], 'end element');
+			if(diff) {
+				break;
+			}
+		}
+
+		this.debug('toShareDB_array_merge', this.path, 'keep', end, 'end elements');
+
+		const ops = [];
+		for(let i = start; i < array.length - end; i++) {
+			this.debug('toShareDB_array_merge', this.path, 'delete', i, array[i]);
+			const p = this.path.slice();
+			p.push(prop);
+			p.push(i);
+		
+			const op = {
+				p,
+				ld: array[i]
+			};
+
+			ops.push(op);
+		}
+
+		for(let i = start; i < data.length - end; i++) {
+			this.debug('toShareDB_array_merge', this.path, 'insert', i, data[i]);
+
+			const p = this.path.slice();
+			p.push(prop);
+			p.push(i);
+		
+			const op = {
+				p,
+				li: data[i]
+			};
+
+			ops.push(op);
+		}
+
+		return this.toShareDBOps(target, prop, data, ops);
 	}
 	
 
