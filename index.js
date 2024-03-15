@@ -191,7 +191,11 @@ class ShareDBJSProxy extends EventEmitter {
 			throw new Error('Could not find setter for type '+targetDataType);
 		}
 
-		return setter.apply(this, [ target, prop, data ]);
+		return setter.apply(this, [ target, prop, data ])
+			.then(promise => {
+				delete this.promises[prop];
+				return promise;
+			});
 	}
 
 	inferType(data) {
