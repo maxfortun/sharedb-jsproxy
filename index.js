@@ -162,6 +162,9 @@ class ShareDBJSProxy extends EventEmitter {
 				this.debug('Proxy.get async', prop, result);
 				delete this.promises[prop];
 				return result;
+			})
+			.finally(() => {
+				delete this.promises[prop];
 			});
 		}
 
@@ -192,9 +195,8 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 
 		return setter.apply(this, [ target, prop, data ])
-			.then(promise => {
+			.finally(() => {
 				delete this.promises[prop];
-				return promise;
 			});
 	}
 
