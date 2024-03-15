@@ -160,7 +160,6 @@ class ShareDBJSProxy extends EventEmitter {
 			return promiseInfo.promise.then(() => {
 				let result = this.childProxies[prop] || target[prop];
 				this.debug('Proxy.get async', prop, result);
-				delete this.promises[prop];
 				return result;
 			})
 			.finally(() => {
