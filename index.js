@@ -242,7 +242,7 @@ class ShareDBJSProxy extends EventEmitter {
 		let promiseInfo = this.promises[prop] = { prop, data };
 		promiseInfo.promise = ShareDBPromises.doc(this.doc)
 			.submitOp(ops)
-			.catch(err => this.emitUp('error', { path: this.path, target, prop, data, ops, error: err }));
+			.catch(err => this.emitUp('caught error', { path: this.path, target, prop, data, ops, error: err }));
 		return promiseInfo.promise;
 	}
 
