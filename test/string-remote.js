@@ -142,4 +142,17 @@ describe('string remote', function() {
 		expect(await remoteProxy.name).to.eql('testString1');
 	});
 
+	it('update case change', async function () {
+		const { docProxies } = this;
+		const [ localProxy, remoteProxy ] = docProxies;
+
+		localProxy.text = 'This is a text.';
+		await localProxy.text;
+		expect(await remoteProxy.text).to.eql('This is a text.');
+
+		localProxy.text = 'THIS IS A TEXT.';
+		await localProxy.text;
+		expect(await remoteProxy.text).to.eql('THIS IS A TEXT.');
+	});
+
 });

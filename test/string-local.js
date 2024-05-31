@@ -153,5 +153,16 @@ describe('string local', function() {
 		expect(await docProxy.name).to.eql('testString1');
 	});
 
+	it('update case change', async function () {
+		const { docProxy } = this;
+
+		docProxy.text = 'This is a text.';
+		expect(await docProxy.text).to.eql('This is a text.');
+
+		docProxy.text = 'THIS IS A TEXT.';
+		expect(await docProxy.text).to.eql('THIS IS A TEXT.');
+	});
+
+
 
 });
