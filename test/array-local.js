@@ -125,4 +125,16 @@ describe('array local', async function() {
 		const result2 = await docProxy.array[1];
 		expect(docProxy.array).to.eql([ { name: 'foo' }, { name: 'bar'} ]);
 	});
+
+	it('append to empty array', async function () {
+		const { docProxy, prop, data } = this;
+		docProxy.array = []; 	
+		const result = await docProxy.array;
+		expect(result).to.eql([]);
+
+		docProxy.array[0] = { name: 'foo'}; 	
+		const result2 = await docProxy.array[0];
+		expect(docProxy.array).to.eql([ { name: 'foo'} ]);
+	});
 });
+
