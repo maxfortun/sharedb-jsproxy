@@ -154,7 +154,6 @@ class ShareDBJSProxy extends EventEmitter {
 		}
 
 		this.debug('Proxy.get', this.path, prop);
-/*
 		let promiseInfo = this.promises[prop];
 		if(promiseInfo?.promise instanceof Promise) {
 			this.debug('Proxy.get promiseInfo', promiseInfo);
@@ -167,7 +166,6 @@ class ShareDBJSProxy extends EventEmitter {
 				delete this.promises[prop];
 			});
 		}
-*/
 
 		let result = this.childProxies[prop] || target[prop];
 		if(typeof result !== 'undefined') {
