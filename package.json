@@ -1,6 +1,6 @@
 {
   "name": "sharedb-jsproxy",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "ShareDB JS Proxy",
   "config": {
     "main": "index.js"
@@ -35,6 +35,6 @@
   "dependencies": {
     "debug": "^4.3.4",
     "diff-match-patch": "^1.0.5",
-    "sharedb-promises": "maxfortun/sharedb-promises"
+    "sharedb-promises": "^0.0.6"
   }
 }
