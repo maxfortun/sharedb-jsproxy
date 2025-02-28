@@ -136,5 +136,34 @@ describe('array local', async function() {
 		const result2 = await docProxy.array[0];
 		expect(docProxy.array).to.eql([ { name: 'foo'} ]);
 	});
+
+	it('rearrange array', async function () {
+		const { docProxy, prop, data } = this;
+
+		const array0 = [
+			"string0",
+			"string1",
+			"string2",
+			"string3"
+		];
+
+		const array1 = [
+			"string3",
+			"string0",
+			"string1",
+			"string2"
+		];
+
+
+		docProxy.array = array0; 	
+		const result0 = await docProxy.array;
+		expect(result0).to.eql(array0);
+
+		docProxy.array = array1; 	
+		const result1 = await docProxy.array;
+		expect(result1).to.eql(array1);
+	});
+
+
 });
 
