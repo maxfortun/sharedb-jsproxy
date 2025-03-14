@@ -1,6 +1,6 @@
 {
   "name": "sharedb-jsproxy",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "ShareDB JS Proxy",
   "config": {
     "main": "index.js"

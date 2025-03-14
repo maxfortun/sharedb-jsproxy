@@ -289,7 +289,6 @@ class ShareDBJSProxy extends EventEmitter {
 
 		let end = 0;
 		for (; array.length - end > start && data.length - end > start; end++) {
-			
 			const diff = JSON.stringify(array[array.length - end - 1]) != JSON.stringify(data[data.length - end - 1])
 			if(diff) {
 				break;
