@@ -279,7 +279,6 @@ class ShareDBJSProxy extends EventEmitter {
 		this.debug('toShareDB_array_merge', this.path, target, prop, target[prop], data);
 
 		const array = target[prop] || [];
-		const ops = [];
 
 		let start = 0;
 		for(; start < array.length && start < data.length; start++) {
@@ -297,6 +296,7 @@ class ShareDBJSProxy extends EventEmitter {
 			}
 		}
 
+		const ops = [];
 		for (let i = array.length - end - 1; i >= start; i--) {
 			const p = this.path.slice();
 			p.push(prop);
